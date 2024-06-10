@@ -37,6 +37,7 @@ import com.github.streamshub.console.config.ConsoleConfig;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.client.informers.SharedIndexInformer;
 import io.fabric8.kubernetes.client.informers.cache.Cache;
+import io.quarkus.security.identity.SecurityIdentity;
 import io.strimzi.api.kafka.model.kafka.Kafka;
 import io.strimzi.api.kafka.model.kafka.KafkaStatus;
 import io.strimzi.api.kafka.model.kafka.listener.GenericKafkaListener;
@@ -81,6 +82,9 @@ public class KafkaClusterService {
      * E.g. {@linkplain #describeCluster(List) describeCluster}.
      */
     KafkaContext kafkaContext;
+
+    @Inject
+    SecurityIdentity securityIdentity;
 
     boolean listUnconfigured = false;
     Predicate<KafkaCluster> includeAll = k -> listUnconfigured;
