@@ -446,13 +446,7 @@
     "review_topic": "Review your topic",
     "name": "Name",
     "empty": "Empty",
-<<<<<<< HEAD
     "no_advanced_options_specified": "No advanced options specified."
-=======
-    "no_advanced_options_specified": "No advanced options specified.",
-    "target": "Target"
-
->>>>>>> 8d8a751 (consumer group reset offset modal)
   },
   "DistributionChart": {
     "partitions_distribution_of_total": "Partitions distribution (% of total)",
