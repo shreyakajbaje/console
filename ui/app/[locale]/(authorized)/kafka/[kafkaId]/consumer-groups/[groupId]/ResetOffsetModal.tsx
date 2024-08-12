@@ -28,8 +28,7 @@ export function ResetOffsetModal({
         <Button key="refresh" variant="link">
           {t("cancel")}
         </Button>
-      ]}
-    >
+      ]}>
       <Stack hasGutter>
         <StackItem>
           <Text>{t("member_list_to_shutdown")}</Text>

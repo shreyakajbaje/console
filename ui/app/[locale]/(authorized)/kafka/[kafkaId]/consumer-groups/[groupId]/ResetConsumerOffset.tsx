@@ -1,27 +1,37 @@
-import { Divider, Panel, PanelHeader, PanelMain, PanelMainBody, TextContent, Text, TextVariants, Radio, Form, FormGroup, FormSection, Select, SelectList, SelectOption, MenuToggle, MenuToggleElement, TextInput, ActionGroup, Button } from "@/libs/patternfly/react-core";
+import { Divider, Panel, PanelHeader, PanelMain, PanelMainBody, TextContent, Text, TextVariants, Radio, Form, FormGroup, FormSection, Select, SelectList, SelectOption, MenuToggle, MenuToggleElement, TextInput, ActionGroup, Button, SelectProps } from "@/libs/patternfly/react-core";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-
-import { formatISO } from "date-fns";
+import { TopicSelection, partitionSelection } from "./types";
+import { TypeaheadSelect } from "./TypeaheadSelect";
 
 export function ResetConsumerOffset({
   consumerGroupName,
-  members
+  members,
+  topics,
+  partitions
 }: {
   consumerGroupName: string;
   members: string[];
+  topics: string[];
+  partitions: string[];
 }) {
 
-  const date = new Date()
-  console.log(date)
+  // const date = new Date()
+  // console.log(date)
 
   const t = useTranslations("ConsumerGroupsTable");
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
+  const [selectedConsumerTopic, setSelectedConsumerTopic] = useState<TopicSelection>();
+
+  const [selectedPartition, setSelectedPartition] = useState<partitionSelection>();
+
   const [selectedOffset, setSelectedOffset] = useState<string>("select offset");
 
-  const [selectedTopic, setSelectedTopic] = useState<boolean>(false)
+  const [selectedTopic, setSelectedTopic] = useState<string>("");
+
+  const [selectPartition, setSelectPartition] = useState<string>("");
 
   const [customOffsetValue, setcustomOffsetValue] = useState<string>();
 
@@ -29,7 +39,15 @@ export function ResetConsumerOffset({
     setIsOpen(!isOpen);
   };
 
-  const onSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
+  const onTopicSelect = (value: TopicSelection) => {
+    setSelectedConsumerTopic(value);
+  };
+
+  const onPartitionSelect = (value: partitionSelection) => {
+    setSelectedPartition(value);
+  };
+
+  const onSelect: SelectProps["onSelect"] = (_, value: string | number | undefined) => {
     setSelectedOffset(value as string);
     setIsOpen(false);
   };
@@ -67,14 +85,34 @@ export function ResetConsumerOffset({
           <Form>
             <FormSection title={t("target")}>
               <FormGroup role="radiogroup" isInline fieldId="select-consumer" hasNoPaddingTop label={t("apply_action_on")}>
-                <Radio name={"all-consumer-topic"} id={"all-consumer-topic"} label={t("all_consumer_topics")} />
-                <Radio name={"selected-topic"} id={"selected-topic"} label={t("selected_topic")} />
+                <Radio name={"consumer-topic-select"} id={"all-consumer-topic"} label={t("all_consumer_topics")}
+                  isChecked={selectedConsumerTopic === "allTopics"}
+                  onChange={() => onTopicSelect("allTopics")} />
+                <Radio name={"consumer-topic-select"} id={"selected-topic"} label={t("selected_topic")} isChecked={selectedConsumerTopic === "selectedTopic"}
+                  onChange={() => onTopicSelect("selectedTopic")} />
               </FormGroup>
-
+              {selectedConsumerTopic === "selectedTopic" && (
+                <TypeaheadSelect
+                  value={selectedTopic}
+                  selectItems={topics}
+                  onChange={setSelectedTopic} placeholder={"Select topic"} />
+              )}
               <FormGroup label={t("partitions")} isInline>
-                <Radio name={"all-partitions"} id={"all-partitions"} label={t("all_partitions")} />
-                <Radio name={"selected_partition"} id={"selected_partition"} label={t("selected_partition")} />
+                <Radio name={"partition-select"} id={"all-partitions"} label={t("all_partitions")}
+                  isChecked={selectedPartition === "allPartitions"}
+                  onChange={() => onPartitionSelect("allPartitions")} />
+                <Radio name={"partition-select"} id={"selected_partition"} label={t("selected_partition")}
+                  isChecked={selectedPartition === "selectedPartition"}
+                  onChange={() => onPartitionSelect("selectedPartition")} />
               </FormGroup>
+              {selectedConsumerTopic === "selectedTopic" && selectedPartition === "selectedPartition" && (
+                <TypeaheadSelect
+                  value={selectPartition}
+                  selectItems={partitions}
+                  onChange={setSelectPartition}
+                  placeholder={"Select partition"}
+                />
+              )}
             </FormSection>
             <FormSection title={t("offset_details")}>
               <FormGroup label={t("new_offset")}>
