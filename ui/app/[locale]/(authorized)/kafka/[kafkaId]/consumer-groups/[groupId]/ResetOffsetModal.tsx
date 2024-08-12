@@ -30,7 +30,7 @@ export function ResetOffsetModal({
         </Button>
       ]}
     >
-      <Stack>
+      <Stack hasGutter>
         <StackItem>
           <Text>{t("member_list_to_shutdown")}</Text>
         </StackItem>

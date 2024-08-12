@@ -389,7 +389,30 @@
     "reset_offset": "Reset consumer offset",
     "reset_offset_description": "Consumer group must be empty to reset offsets.",
     "member_list_to_shutdown": "Active members of the group that need to shutdown:",
-    "learn_to_shutdown_members": "Learn how to shut down members"
+    "learn_to_shutdown_members": "Learn how to shut down members",
+    "reset_consumer_offset": "Reset consumer offset",
+    "consumer_name": "Consumer group: <b>{consumerGroupName}</b>",
+    "target": "Target",
+    "apply_action_on": "Apply action on",
+    "all_consumer_topics": "All consumer topics",
+    "selected_topic": "A selected topic",
+    "offset_details": "Offset details",
+    "new_offset": "New offset",
+    "offset": {
+      "custom": "Custom offset",
+      "earliest": "Earliest offset",
+      "latest": "Latest offset",
+      "specific_date_time": "Specific Date time"
+    },
+    "custom_offset": "Custom offset",
+    "save": "Save",
+    "dry_run": "Dry run",
+    "partitions": "Partitions",
+    "all_partitions": "All partitions",
+    "selected_partition": "A selected partition",
+    "select_date_time": "Select Date time",
+    "iso_date_format": "ISO 8601 Date-Time Format",
+    "unix_date_format": "Unix Epoch Milliseconds"
   },
   "CreateTopic": {
     "title": "Topic creation wizard",
@@ -423,7 +446,13 @@
     "review_topic": "Review your topic",
     "name": "Name",
     "empty": "Empty",
+<<<<<<< HEAD
     "no_advanced_options_specified": "No advanced options specified."
+=======
+    "no_advanced_options_specified": "No advanced options specified.",
+    "target": "Target"
+
+>>>>>>> 8d8a751 (consumer group reset offset modal)
   },
   "DistributionChart": {
     "partitions_distribution_of_total": "Partitions distribution (% of total)",
