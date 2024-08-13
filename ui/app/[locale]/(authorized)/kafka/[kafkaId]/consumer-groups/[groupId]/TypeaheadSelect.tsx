@@ -11,12 +11,12 @@ import {
   TextInputGroupUtilities,
   Button
 } from '@patternfly/react-core';
-import TimesIcon from '@patternfly/react-icons/dist/esm/icons/times-icon';
+import { TimesIcon } from '@patternfly/react-icons';
 
 export function TypeaheadSelect({ value, selectItems, onChange, placeholder }: {
   value: string;
   selectItems: string[];
-  onChange: (items: string) => void;
+  onChange: (item: string) => void;
   placeholder: string;
 }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -27,19 +27,26 @@ export function TypeaheadSelect({ value, selectItems, onChange, placeholder }: {
 
   const NO_RESULTS = 'no results';
 
-  const onToggle = (isOpen: boolean) => {
-    setIsOpen(isOpen);
+  // Handle menu toggle
+  const onToggleClick = () => {
+    setIsOpen(!isOpen);
+    if (!isOpen) {
+      textInputRef.current?.focus();
+    }
   };
 
-  const onSelect: SelectProps["onSelect"] = (_, topic) => {
-    onChange(topic as string);
+  // Handle option selection
+  const onSelect: SelectProps["onSelect"] = (_event, selection) => {
+    onChange(selection as string);
     setIsOpen(false);
   };
 
+  // Filter items based on input value
   const filteredItems = filterValue
-    ? selectItems.filter(selectItem => selectItem.toLowerCase().includes(filterValue.toLowerCase()))
+    ? selectItems.filter(item => item.toLowerCase().includes(filterValue.toLowerCase()))
     : selectItems;
 
+  // Options to display in the select menu
   const options = filteredItems.length
     ? filteredItems.map(item => (
       <SelectOption key={item} value={item}>
@@ -48,14 +55,17 @@ export function TypeaheadSelect({ value, selectItems, onChange, placeholder }: {
     ))
     : [
       <SelectOption key={NO_RESULTS} value={NO_RESULTS} isAriaDisabled>
-        {"No results found for" + { filterValue }}
+        No results found for "{filterValue}"
       </SelectOption>
     ];
 
+  // Handle text input change
   const onInputChange = (_event: React.FormEvent<HTMLInputElement>, value: string) => {
     setFilterValue(value);
+    setFocusedItemIndex(null); // Reset focused item
   };
 
+  // Handle input keydown events
   const onInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter' && focusedItemIndex !== null) {
       const selectedItem = filteredItems[focusedItemIndex];
@@ -64,6 +74,7 @@ export function TypeaheadSelect({ value, selectItems, onChange, placeholder }: {
     }
   };
 
+  // Handle clearing the input
   const onClearButtonClick = () => {
     setFilterValue('');
     setFocusedItemIndex(null);
@@ -71,12 +82,13 @@ export function TypeaheadSelect({ value, selectItems, onChange, placeholder }: {
     textInputRef.current?.focus();
   };
 
+  // Create the toggle component
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
     <MenuToggle
       ref={toggleRef}
       variant="typeahead"
       aria-label="Typeahead menu toggle"
-      onClick={() => onToggle(!isOpen)}
+      onClick={onToggleClick}
       isExpanded={isOpen}
       isFullWidth
     >
@@ -88,18 +100,19 @@ export function TypeaheadSelect({ value, selectItems, onChange, placeholder }: {
           onKeyDown={onInputKeyDown}
           id="typeahead-select-input"
           autoComplete="off"
-          innerRef={textInputRef}
+          ref={textInputRef}
           placeholder={placeholder}
           {...(activeItemId && { 'aria-activedescendant': activeItemId })}
           role="combobox"
           isExpanded={isOpen}
           aria-controls="typeahead-select-listbox"
         />
-
-        <TextInputGroupUtilities {...(!filterValue ? { style: { display: 'none' } } : {})}>
-          <Button variant="plain" onClick={onClearButtonClick} aria-label="Clear input value">
-            <TimesIcon aria-hidden />
-          </Button>
+        <TextInputGroupUtilities>
+          {filterValue && (
+            <Button variant="plain" onClick={onClearButtonClick} aria-label="Clear input value">
+              <TimesIcon aria-hidden />
+            </Button>
+          )}
         </TextInputGroupUtilities>
       </TextInputGroup>
     </MenuToggle>
@@ -109,14 +122,15 @@ export function TypeaheadSelect({ value, selectItems, onChange, placeholder }: {
     <Select
       id="typeahead-select"
       isOpen={isOpen}
-      selected={[value]}
+      selected={value ? [value] : []}
       onSelect={onSelect}
       onOpenChange={(isOpen) => !isOpen && setIsOpen(false)}
       toggle={toggle}
+      shouldFocusFirstItemOnOpen={false}
     >
       <SelectList id="typeahead-select-listbox">
         {options}
       </SelectList>
     </Select>
   );
-};
+}

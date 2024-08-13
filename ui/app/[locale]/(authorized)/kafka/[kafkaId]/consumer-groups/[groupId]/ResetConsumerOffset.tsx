@@ -1,8 +1,9 @@
 import { Divider, Panel, PanelHeader, PanelMain, PanelMainBody, TextContent, Text, TextVariants, Radio, Form, FormGroup, FormSection, Select, SelectList, SelectOption, MenuToggle, MenuToggleElement, TextInput, ActionGroup, Button, SelectProps } from "@/libs/patternfly/react-core";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { TopicSelection, partitionSelection } from "./types";
+import { DateTimeFormatSelection, OffsetValue, TopicSelection, partitionSelection } from "./types";
 import { TypeaheadSelect } from "./TypeaheadSelect";
+import { OffsetSelect } from "./OffsetSelect";
 
 export function ResetConsumerOffset({
   consumerGroupName,
@@ -15,19 +16,13 @@ export function ResetConsumerOffset({
   topics: string[];
   partitions: string[];
 }) {
-
-  // const date = new Date()
-  // console.log(date)
-
   const t = useTranslations("ConsumerGroupsTable");
-
-  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const [selectedConsumerTopic, setSelectedConsumerTopic] = useState<TopicSelection>();
 
   const [selectedPartition, setSelectedPartition] = useState<partitionSelection>();
 
-  const [selectedOffset, setSelectedOffset] = useState<string>("select offset");
+  const [selectedOffset, setSelectedOffset] = useState<OffsetValue>("custom");
 
   const [selectedTopic, setSelectedTopic] = useState<string>("");
 
@@ -35,9 +30,7 @@ export function ResetConsumerOffset({
 
   const [customOffsetValue, setcustomOffsetValue] = useState<string>();
 
-  const onToggle = () => {
-    setIsOpen(!isOpen);
-  };
+  const [selectDateTimeFormat, setSelectDateTimeFormat] = useState<DateTimeFormatSelection>("ISO");
 
   const onTopicSelect = (value: TopicSelection) => {
     setSelectedConsumerTopic(value);
@@ -47,27 +40,9 @@ export function ResetConsumerOffset({
     setSelectedPartition(value);
   };
 
-  const onSelect: SelectProps["onSelect"] = (_, value: string | number | undefined) => {
-    setSelectedOffset(value as string);
-    setIsOpen(false);
-  };
-
-
-  const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
-    <MenuToggle
-      ref={toggleRef}
-      onClick={onToggle}
-      isExpanded={isOpen}
-      style={
-        {
-          width: '200px'
-        } as React.CSSProperties
-      }
-    >
-      {selectedOffset}
-    </MenuToggle>
-  );
-
+  const onDateTimeSelect = (value: DateTimeFormatSelection) => {
+    setSelectDateTimeFormat(value)
+  }
 
   return (
     <Panel>
@@ -116,21 +91,11 @@ export function ResetConsumerOffset({
             </FormSection>
             <FormSection title={t("offset_details")}>
               <FormGroup label={t("new_offset")}>
-                <Select
-                  id="offset-select"
-                  isOpen={isOpen}
-                  selected={selectedOffset}
-                  onSelect={onSelect}
-                  toggle={toggle}>
-                  <SelectList>
-                    <SelectOption value={t("offset.custom")}>{t("offset.custom")}</SelectOption>
-                    <SelectOption value={t("offset.earliest")}>{t("offset.earliest")}</SelectOption>
-                    <SelectOption value={t("offset.latest")}>{t("offset.latest")}</SelectOption>
-                    <SelectOption value={t("offset.specific_date_time")}>{t("offset.specific_date_time")}</SelectOption>
-                  </SelectList>
-                </Select>
+                <OffsetSelect
+                  value={selectedOffset}
+                  onChange={setSelectedOffset} />
               </FormGroup>
-              {selectedOffset === "Custom offset" &&
+              {selectedOffset === "custom" &&
                 <FormGroup
                   label={t("custom_offset")}
                   fieldId="custom-offset-input"
@@ -143,11 +108,15 @@ export function ResetConsumerOffset({
                     type="number"
                   />
                 </FormGroup>}
-              {selectedOffset === "Specific Date time" &&
+              {selectedOffset === "specificDateTime" &&
                 <>
                   <FormGroup role="radiogroup" isInline fieldId="select-consumer" hasNoPaddingTop label={t("select_date_time")}>
-                    <Radio name={"iso_date_format"} id={"iso_date_format"} label={t("iso_date_format")} />
-                    <Radio name={"unix_date_format"} id={"unix_date_format"} label={t("unix_date_format")} />
+                    <Radio name={"select_time"} id={"iso_date_format"} label={t("iso_date_format")}
+                      isChecked={selectDateTimeFormat === "ISO"}
+                      onChange={() => onDateTimeSelect("ISO")} />
+                    <Radio name={"select_time"} id={"unix_date_format"} label={t("unix_date_format")}
+                      isChecked={selectDateTimeFormat === "Epoch"}
+                      onChange={() => onDateTimeSelect("Epoch")} />
                   </FormGroup>
                   <FormGroup>
                     <TextInput
