@@ -5,6 +5,7 @@ import {
   ConsumerGroupResponseSchema,
   ConsumerGroupsResponse,
   ConsumerGroupsResponseSchema,
+  ConsumerGroupState,
 } from "@/api/consumerGroups/schema";
 import { filterUndefinedFromObj } from "@/utils/filterUndefinedFromObj";
 import { logger } from "@/utils/logger";
@@ -32,6 +33,8 @@ export async function getConsumerGroups(
   kafkaId: string,
   params: {
     fields?: string;
+    name?: string;
+    state?: ConsumerGroupState[];
     pageSize?: number;
     pageCursor?: string;
     sort?: string;
@@ -44,7 +47,11 @@ export async function getConsumerGroups(
         "fields[consumerGroups]":
           params.fields ?? "state,simpleConsumerGroup,members,offsets",
         // TODO: pass filter from UI
-        "filter[state]": "in,STABLE,PREPARING_REBALANCE,COMPLETING_REBALANCE",
+        "filter[name]": params.name ? `like,*${params.name}*` : undefined,
+        "filter[state]":
+        params.state && params.state.length > 0
+          ? `in,${params.state.join(",")}`
+          : undefined,
         "page[size]": params.pageSize,
         "page[after]": params.pageCursor,
         sort: params.sort

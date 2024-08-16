@@ -3,8 +3,15 @@ import { KafkaParams } from "@/app/[locale]/(authorized)/kafka/[kafkaId]/kafka.p
 import { PageSection } from "@/libs/patternfly/react-core";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ConsumerGroupsTable } from "./ConsumerGroupsTable";
-import { ConsumerGroupState } from "@/api/consumerGroups/schema";
+import { ConsumerGroupsTable, SortableColumns, SortableConsumerGroupTableColumns } from "./ConsumerGroupsTable";
+import { ConsumerGroup, ConsumerGroupState } from "@/api/consumerGroups/schema";
+import { stringToInt } from "@/utils/stringToInt";
+import { ConnectedConsumerGroupsTable } from "./ConnectedConsumerGroupTable";
+
+const sortMap: Record<(typeof SortableColumns)[number], string> = {
+  name: "name",
+  state: "state",
+};
 
 export default function ConsumerGroupsPage({
   params: { kafkaId },
@@ -12,72 +19,121 @@ export default function ConsumerGroupsPage({
 }: {
   params: KafkaParams;
   searchParams: {
+    name: string | undefined;
+    state: string | undefined;
     perPage: string | undefined;
     sort: string | undefined;
     sortDir: string | undefined;
     page: string | undefined;
   };
 }) {
+  const name = searchParams["name"];
+  const pageSize = stringToInt(searchParams.perPage) || 20;
+  const sort = (searchParams["sort"] || "name") as SortableConsumerGroupTableColumns;
+  const sortDir = (searchParams["sortDir"] || "asc") as "asc" | "desc";
+  const pageCursor = searchParams["page"];
+  const state = (searchParams["state"] || "").split(",").filter((v) => !!v) as ConsumerGroupState[] | undefined;
+
   return (
     <PageSection>
-      <Suspense
-        fallback={
-          <ConsumerGroupsTable
-            kafkaId={kafkaId}
-            page={1}
-            consumerGroups={undefined}
-            refresh={undefined}
-            total={0} perPage={0}
-            filterName={undefined}
-            filterState={undefined}
-            onFilterNameChange={() => { }}
-            onFilterStateChange={() => { }}
-            onResetOffset={() => { }}
-            onPageChange={() => { }} />
-        }
-      >
+      <Suspense fallback={
         <ConnectedConsumerGroupsTable
-          params={{ kafkaId }}
-          searchParams={searchParams}
-        />
+          kafkaId={kafkaId}
+          consumerGroups={undefined}
+          consumerGroupCount={0}
+          page={1}
+          perPage={pageSize}
+          name={name}
+          sort={sort}
+          sortDir={sortDir}
+          state={state}
+          baseurl={`/kafka/${kafkaId}/consumer-groups`}
+          nextPageCursor={undefined}
+          prevPageCursor={undefined}
+          refresh={undefined} />
+      }>
+        <AsyncConnectedConsumerGroupsTable
+          sort={sort}
+          name={name}
+          sortDir={sortDir}
+          pageSize={pageSize}
+          pageCursor={pageCursor}
+          state={state}
+          kafkaId={kafkaId} />
       </Suspense>
     </PageSection>
-  );
+  )
 }
 
-async function ConnectedConsumerGroupsTable({
-  params: { kafkaId },
-  searchParams,
+async function AsyncConnectedConsumerGroupsTable({
+  kafkaId,
+  name,
+  sortDir,
+  sort,
+  pageCursor,
+  pageSize,
+  state,
 }: {
-  params: KafkaParams;
-  searchParams: {
-    perPage: string | undefined;
-    sort: string | undefined;
-    sortDir: string | undefined;
-    page: string | undefined;
-  };
-}) {
+  sort: SortableConsumerGroupTableColumns;
+  name: string | undefined;
+  sortDir: "asc" | "desc";
+  pageSize: number;
+  pageCursor: string | undefined;
+  state: ConsumerGroupState[] | undefined;
+} & KafkaParams) {
+
+
+
   async function refresh() {
     "use server";
-    const res = await getConsumerGroups(kafkaId, searchParams);
-    return res?.data;
+    const res = await getConsumerGroups(kafkaId, {
+      name,
+      state,
+      sort: sortMap[sort],
+      sortDir,
+      pageSize,
+      pageCursor,
+    });
+    return res?.data as ConsumerGroup[];
   }
 
-  const consumerGroups = await getConsumerGroups(kafkaId, searchParams);
+
+  const consumerGroups = await getConsumerGroups(kafkaId, {
+    name,
+    state,
+    sort: sortMap[sort],
+    sortDir,
+    pageSize,
+    pageCursor,
+  });
+  if (!consumerGroups) {
+    notFound();
+  }
+
+  console.log(consumerGroups)
+
+  const nextPageQuery = consumerGroups.links.next
+    ? new URLSearchParams(consumerGroups.links.next)
+    : undefined;
+  const nextPageCursor = nextPageQuery?.get("page[after]");
+  const prevPageQuery = consumerGroups.links.prev
+    ? new URLSearchParams(consumerGroups.links.prev)
+    : undefined;
+  const prevPageCursor = prevPageQuery?.get("page[after]");
   return (
-    <ConsumerGroupsTable
+    <ConnectedConsumerGroupsTable
       kafkaId={kafkaId}
-      page={consumerGroups?.meta.page.pageNumber || 1}
-      total={consumerGroups?.meta.page.total || 0}
-      consumerGroups={consumerGroups?.data}
-      refresh={refresh}
-      perPage={0}
-      filterName={undefined}
-      filterState={undefined}
-      onFilterNameChange={() => { }}
-      onFilterStateChange={() => { }}
-      onResetOffset={() => { }}
-      onPageChange={() => { }}
-    />
+      consumerGroups={consumerGroups.data}
+      consumerGroupCount={consumerGroups.meta.page.total || 0} page={0} perPage={0}
+      name={name}
+      sort={sort}
+      sortDir={sortDir}
+      state={state}
+      baseurl={`/kafka/${kafkaId}/consumer-groups`}
+      nextPageCursor={nextPageCursor}
+      prevPageCursor={prevPageCursor}
+      refresh={refresh} />
   );
+
+
 }
