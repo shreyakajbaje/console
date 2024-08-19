@@ -2,13 +2,13 @@
 
 import { ConsumerGroup, ConsumerGroupState } from "@/api/consumerGroups/schema";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "@/navigation";
 import { useFilterParams } from "@/utils/useFilterParams";
 import { useOptimistic, useTransition } from "react";
 import { ConsumerGroupColumn, ConsumerGroupColumns, ConsumerGroupsTable, SortableColumns } from "./ConsumerGroupsTable";
 import { ResetOffsetModal } from "./[groupId]/ResetOffsetModal";
-import { ResetConsumerOffset } from "./[groupId]/reset-offset/ResetConsumerOffset";
+
 
 export type ConnectedConsumerGroupsTableProps = {
   kafkaId: string;
@@ -193,10 +193,6 @@ export function ConnectedConsumerGroupsTable({
           refresh={refresh}
         />
       )}
-      {/* {consumerGroupName && <ResetConsumerOffset
-        consumerGroupName={consumerGroupName || ""}
-        topics={topics}
-        partitions={[]} />} */}
     </>
   );
 }
