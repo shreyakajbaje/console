@@ -1,13 +1,19 @@
+import { ConsumerGroup } from "@/api/consumerGroups/schema";
 import { ExternalLink } from "@/components/Navigation/ExternalLink";
-import { Button, List, ListItem, Modal, Stack, StackItem, Text } from "@/libs/patternfly/react-core";
+import { Button, List, ListItem, Modal, ModalVariant, Stack, StackItem, Text } from "@/libs/patternfly/react-core";
 import { useTranslations } from "next-intl";
 
 export function ResetOffsetModal({
-  consumerGroupId,
-  members
+  members,
+  isResetOffsetModalOpen,
+  onClickClose,
+  refresh
+
 }: {
-  consumerGroupId: string;
   members: string[];
+  isResetOffsetModalOpen: boolean;
+  onClickClose: () => void;
+  refresh: (() => Promise<ConsumerGroup[]>) | undefined;
 }) {
 
   const t = useTranslations("ConsumerGroupsTable");
@@ -16,16 +22,18 @@ export function ResetOffsetModal({
     <Modal
       title={t("consumer_group_must_be_empty")}
       titleIconVariant="warning"
-      isOpen={true}
+      isOpen={isResetOffsetModalOpen}
+      variant={ModalVariant.medium}
       description={t("consumer_group_must_be_empty_description")}
+      onClose={onClickClose}
       actions={[
-        <Button key="close" variant="primary">
+        <Button key="close" variant="primary" onClick={onClickClose}>
           {t("close")}
         </Button>,
-        <Button key="refresh" variant="secondary">
+        <Button key="refresh" variant="secondary" onClick={refresh}>
           {t("refresh")}
         </Button>,
-        <Button key="refresh" variant="link">
+        <Button key="refresh" variant="link" onClick={onClickClose}>
           {t("cancel")}
         </Button>
       ]}>

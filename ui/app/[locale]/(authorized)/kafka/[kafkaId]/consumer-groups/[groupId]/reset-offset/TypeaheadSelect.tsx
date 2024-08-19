@@ -14,9 +14,9 @@ import {
 import { TimesIcon } from '@patternfly/react-icons';
 
 export function TypeaheadSelect({ value, selectItems, onChange, placeholder }: {
-  value: string;
-  selectItems: string[];
-  onChange: (item: string) => void;
+  value: string | number;
+  selectItems: (string | number)[];
+  onChange: (item: string | number) => void;
   placeholder: string;
 }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -27,7 +27,6 @@ export function TypeaheadSelect({ value, selectItems, onChange, placeholder }: {
 
   const NO_RESULTS = 'no results';
 
-  // Handle menu toggle
   const onToggleClick = () => {
     setIsOpen(!isOpen);
     if (!isOpen) {
@@ -35,18 +34,15 @@ export function TypeaheadSelect({ value, selectItems, onChange, placeholder }: {
     }
   };
 
-  // Handle option selection
   const onSelect: SelectProps["onSelect"] = (_event, selection) => {
-    onChange(selection as string);
+    onChange(selection as string | number);
     setIsOpen(false);
   };
 
-  // Filter items based on input value
   const filteredItems = filterValue
-    ? selectItems.filter(item => item.toLowerCase().includes(filterValue.toLowerCase()))
+    ? selectItems.filter(item => item.toString().toLowerCase().includes(filterValue.toLowerCase()))
     : selectItems;
 
-  // Options to display in the select menu
   const options = filteredItems.length
     ? filteredItems.map(item => (
       <SelectOption key={item} value={item}>
@@ -55,17 +51,15 @@ export function TypeaheadSelect({ value, selectItems, onChange, placeholder }: {
     ))
     : [
       <SelectOption key={NO_RESULTS} value={NO_RESULTS} isAriaDisabled>
-        No results found for "{filterValue}"
+        {"No results found for" + filterValue}
       </SelectOption>
     ];
 
-  // Handle text input change
   const onInputChange = (_event: React.FormEvent<HTMLInputElement>, value: string) => {
     setFilterValue(value);
-    setFocusedItemIndex(null); // Reset focused item
+    setFocusedItemIndex(null);
   };
 
-  // Handle input keydown events
   const onInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter' && focusedItemIndex !== null) {
       const selectedItem = filteredItems[focusedItemIndex];
@@ -74,7 +68,6 @@ export function TypeaheadSelect({ value, selectItems, onChange, placeholder }: {
     }
   };
 
-  // Handle clearing the input
   const onClearButtonClick = () => {
     setFilterValue('');
     setFocusedItemIndex(null);
@@ -82,7 +75,6 @@ export function TypeaheadSelect({ value, selectItems, onChange, placeholder }: {
     textInputRef.current?.focus();
   };
 
-  // Create the toggle component
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
     <MenuToggle
       ref={toggleRef}

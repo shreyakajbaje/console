@@ -106,11 +106,10 @@ async function AsyncConnectedConsumerGroupsTable({
     pageSize,
     pageCursor,
   });
+  console.log(consumerGroups)
   if (!consumerGroups) {
     notFound();
   }
-
-  console.log(consumerGroups)
 
   const nextPageQuery = consumerGroups.links.next
     ? new URLSearchParams(consumerGroups.links.next)

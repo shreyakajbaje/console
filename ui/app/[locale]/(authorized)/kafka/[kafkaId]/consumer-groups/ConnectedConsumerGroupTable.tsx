@@ -7,6 +7,8 @@ import { useRouter } from "@/navigation";
 import { useFilterParams } from "@/utils/useFilterParams";
 import { useOptimistic, useTransition } from "react";
 import { ConsumerGroupColumn, ConsumerGroupColumns, ConsumerGroupsTable, SortableColumns } from "./ConsumerGroupsTable";
+import { ResetOffsetModal } from "./[groupId]/ResetOffsetModal";
+import { ResetConsumerOffset } from "./[groupId]/reset-offset/ResetConsumerOffset";
 
 export type ConnectedConsumerGroupsTableProps = {
   kafkaId: string;
@@ -52,7 +54,6 @@ export function ConnectedConsumerGroupsTable({
   const _updateUrl = useFilterParams({ perPage, sort, sortDir });
   const [_, startTransition] = useTransition();
 
-  const initialConsumerGroups: ConsumerGroup[] | undefined = [];
 
   const [consumerState, addOptimistic] = useOptimistic<
     State,
@@ -87,79 +88,115 @@ export function ConnectedConsumerGroupsTable({
     });
   }
 
-  console.log(consumerState);
+  const [isResetOffsetModalOpen, setResetOffsetModalOpen] = useState(false);
+  const [ConsumerGroupMembers, setConsumerGroupMembers] = useState<string[]>([]);
+
+  const [consumerGroupName, setConsumerGroupName] = useState<string>();
+  const [topics, setTopics] = useState<string[]>([]);
+
+  function closeResetOffsetModal() {
+    setResetOffsetModalOpen(false);
+    setConsumerGroupMembers([]);
+    router.push(`${baseurl}`);
+  }
+
+
   return (
-    <ConsumerGroupsTable
-      kafkaId={kafkaId}
-      page={page}
-      perPage={consumerState.perPage}
-      isColumnSortable={(col) => {
-        if (!SortableColumns.includes(col)) {
-          return undefined;
-        }
-        const activeIndex = ConsumerGroupColumns.indexOf(consumerState.sort);
-        const columnIndex = ConsumerGroupColumns.indexOf(col);
-        return {
-          label: col as string,
-          columnIndex,
-          onSort: () => {
-            startTransition(() => {
-              const newSortDir = activeIndex === columnIndex
-                ? consumerState.sortDir === "asc"
-                  ? "desc"
-                  : "asc"
-                : "asc";
-              updateUrl({
-                sort: col,
-                sortDir: newSortDir,
-              });
-              addOptimistic({ sort: col, sortDir: newSortDir });
-            });
-          },
-          sortBy: {
-            index: activeIndex,
-            direction: consumerState.sortDir,
-            defaultDirection: "asc",
-          },
-          isFavorites: undefined,
-        };
-      }}
-      total={0}
-      consumerGroups={consumerState.consumerGroups}
-      refresh={refresh}
-      onResetOffset={() => { }}
-      onPageChange={(newPage, perPage) => {
-        startTransition(() => {
-          const pageDiff = newPage - page;
-          switch (pageDiff) {
-            case -1:
-              updateUrl({ perPage, page: prevPageCursor });
-              break;
-            case 1:
-              updateUrl({ perPage, page: nextPageCursor });
-              break;
-            default:
-              updateUrl({ perPage });
-              break;
+    <>
+      <ConsumerGroupsTable
+        kafkaId={kafkaId}
+        page={page}
+        perPage={consumerState.perPage}
+        isColumnSortable={(col) => {
+          if (!SortableColumns.includes(col)) {
+            return undefined;
           }
-          addOptimistic({ perPage });
-        });
-      }}
-      filterName={consumerState.name}
-      filterState={consumerState.state}
-      onFilterNameChange={(name) => {
-        startTransition(() => {
-          updateUrl({ name });
-          addOptimistic({ name });
-        });
-      }}
-      onFilterStateChange={(state) => {
-        startTransition(() => {
-          updateUrl({ state });
-          addOptimistic({ state });
-        });
-      }}
-      onClearAllFilters={clearFilters}
-    />
+          const activeIndex = ConsumerGroupColumns.indexOf(consumerState.sort);
+          const columnIndex = ConsumerGroupColumns.indexOf(col);
+          return {
+            label: col as string,
+            columnIndex,
+            onSort: () => {
+              startTransition(() => {
+                const newSortDir = activeIndex === columnIndex
+                  ? consumerState.sortDir === "asc"
+                    ? "desc"
+                    : "asc"
+                  : "asc";
+                updateUrl({
+                  sort: col,
+                  sortDir: newSortDir,
+                });
+                addOptimistic({ sort: col, sortDir: newSortDir });
+              });
+            },
+            sortBy: {
+              index: activeIndex,
+              direction: consumerState.sortDir,
+              defaultDirection: "asc",
+            },
+            isFavorites: undefined,
+          };
+        }}
+        total={0}
+        consumerGroups={consumerState.consumerGroups}
+        refresh={refresh}
+        onResetOffset={(row) => {
+          startTransition(() => {
+            if (row.attributes.state === "STABLE") {
+              router.push(`${baseurl}/${row.id}/reset-offset`);
+            } else if (row.attributes.state === "EMPTY") {
+              setResetOffsetModalOpen(true)
+              setConsumerGroupMembers(row.attributes.members?.map((member) => member.memberId) || []);
+              router.push(`${baseurl}/${row.id}/reset-offset`);
+            }
+          });
+        }}
+        onPageChange={(newPage, perPage) => {
+          startTransition(() => {
+            const pageDiff = newPage - page;
+            switch (pageDiff) {
+              case -1:
+                updateUrl({ perPage, page: prevPageCursor });
+                break;
+              case 1:
+                updateUrl({ perPage, page: nextPageCursor });
+                break;
+              default:
+                updateUrl({ perPage });
+                break;
+            }
+            addOptimistic({ perPage });
+          });
+        }}
+        filterName={consumerState.name}
+        filterState={consumerState.state}
+        onFilterNameChange={(name) => {
+          startTransition(() => {
+            updateUrl({ name });
+            addOptimistic({ name });
+          });
+        }}
+        onFilterStateChange={(state) => {
+          startTransition(() => {
+            updateUrl({ state });
+            addOptimistic({ state });
+          });
+        }}
+        onClearAllFilters={clearFilters}
+      />
+      {isResetOffsetModalOpen && (
+        <ResetOffsetModal
+          members={ConsumerGroupMembers}
+          isResetOffsetModalOpen={isResetOffsetModalOpen}
+          onClickClose={closeResetOffsetModal}
+          refresh={refresh}
+        />
+      )}
+      {/* {consumerGroupName && <ResetConsumerOffset
+        consumerGroupName={consumerGroupName || ""}
+        topics={topics}
+        partitions={[]} />} */}
+    </>
   );
 }

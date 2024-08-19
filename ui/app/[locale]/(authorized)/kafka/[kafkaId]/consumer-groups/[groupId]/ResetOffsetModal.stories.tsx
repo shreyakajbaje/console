@@ -9,7 +9,6 @@ type Story = StoryObj<typeof ResetOffsetModal>;
 
 export const Default: Story = {
   args: {
-    consumerGroupId: "console-datagen-group-0",
     members: ["console-datagen-consumer-0", "console-datagen-consumer-1"]
   },
 };

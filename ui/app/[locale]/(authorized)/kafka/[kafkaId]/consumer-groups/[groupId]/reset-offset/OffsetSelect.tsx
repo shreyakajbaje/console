@@ -1,7 +1,7 @@
 import { MenuToggle, MenuToggleElement, Select, SelectList, SelectOption, SelectProps } from "@/libs/patternfly/react-core";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { OffsetValue } from "./types";
+import { OffsetValue } from "../types";
 
 export function OffsetSelect({
   value,
