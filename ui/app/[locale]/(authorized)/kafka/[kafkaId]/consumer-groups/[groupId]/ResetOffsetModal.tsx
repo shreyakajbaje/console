@@ -24,7 +24,6 @@ export function ResetOffsetModal({
       titleIconVariant="warning"
       isOpen={isResetOffsetModalOpen}
       variant={ModalVariant.medium}
-      description={t("consumer_group_must_be_empty_description")}
       onClose={onClickClose}
       actions={[
         <Button key="close" variant="primary" onClick={onClickClose}>
@@ -39,7 +38,7 @@ export function ResetOffsetModal({
       ]}>
       <Stack hasGutter>
         <StackItem>
-          <Text>{t("member_list_to_shutdown")}</Text>
+          <Text>{t("member_shutdown_helper_text")}</Text>
         </StackItem>
         <StackItem>
           <List>
@@ -47,6 +46,9 @@ export function ResetOffsetModal({
               <ListItem key={index}>{member}</ListItem>
             ))}
           </List>
+        </StackItem>
+        <StackItem>
+          <Text>{t("shutdown_active_members")}</Text>
         </StackItem>
         <StackItem>
           <ExternalLink

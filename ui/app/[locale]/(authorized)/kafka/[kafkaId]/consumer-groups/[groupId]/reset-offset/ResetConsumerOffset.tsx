@@ -62,98 +62,96 @@ export function ResetConsumerOffset({
   };
 
   return (
-    <PageSection>
-      <Panel>
-        <PanelHeader>
-          <TextContent>
-            <Text component={TextVariants.h1}>{t("reset_consumer_offset")}</Text>
-          </TextContent>
-          <TextContent>
-            <Text>{t.rich("consumer_name", { consumerGroupName })}</Text>
-          </TextContent>
-        </PanelHeader>
-        <Divider />
-        <PanelMain>
-          <PanelMainBody>
-            <Form>
-              <FormSection title={t("target")}>
-                <FormGroup role="radiogroup" isInline fieldId="select-consumer" hasNoPaddingTop label={t("apply_action_on")}>
-                  <Radio name={"consumer-topic-select"} id={"all-consumer-topic"} label={t("all_consumer_topics")}
-                    isChecked={selectedConsumerTopic === "allTopics"}
-                    onChange={() => onTopicSelect("allTopics")} />
-                  <Radio name={"consumer-topic-select"} id={"selected-topic"} label={t("selected_topic")} isChecked={selectedConsumerTopic === "selectedTopic"}
-                    onChange={() => onTopicSelect("selectedTopic")} />
-                </FormGroup>
-                {selectedConsumerTopic === "selectedTopic" && (
-                  <TypeaheadSelect
-                    value={selectedTopic}
-                    selectItems={topics}
-                    onChange={handleTopicChange} placeholder={"Select topic"} />
-                )}
-                <FormGroup label={t("partitions")} isInline>
-                  <Radio name={"partition-select"} id={"all-partitions"} label={t("all_partitions")}
-                    isChecked={selectedPartition === "allPartitions"}
-                    onChange={() => onPartitionSelect("allPartitions")} />
-                  <Radio name={"partition-select"} id={"selected_partition"} label={t("selected_partition")}
-                    isChecked={selectedPartition === "selectedPartition"}
-                    onChange={() => onPartitionSelect("selectedPartition")} />
-                </FormGroup>
-                {selectedConsumerTopic === "selectedTopic" && selectedPartition === "selectedPartition" && (
-                  <TypeaheadSelect
-                    value={selectPartition}
-                    selectItems={partitions}
-                    onChange={handlePartitionChange}
-                    placeholder={"Select partition"}
+    <Panel>
+      <PanelHeader>
+        <TextContent>
+          <Text component={TextVariants.h1}>{t("reset_consumer_offset")}</Text>
+        </TextContent>
+        <TextContent>
+          <Text>{t.rich("consumer_name", { consumerGroupName })}</Text>
+        </TextContent>
+      </PanelHeader>
+      <Divider />
+      <PanelMain>
+        <PanelMainBody>
+          <Form>
+            <FormSection title={t("target")}>
+              <FormGroup role="radiogroup" isInline fieldId="select-consumer" hasNoPaddingTop label={t("apply_action_on")}>
+                <Radio name={"consumer-topic-select"} id={"all-consumer-topic"} label={t("all_consumer_topics")}
+                  isChecked={selectedConsumerTopic === "allTopics"}
+                  onChange={() => onTopicSelect("allTopics")} />
+                <Radio name={"consumer-topic-select"} id={"selected-topic"} label={t("selected_topic")} isChecked={selectedConsumerTopic === "selectedTopic"}
+                  onChange={() => onTopicSelect("selectedTopic")} />
+              </FormGroup>
+              {selectedConsumerTopic === "selectedTopic" && (
+                <TypeaheadSelect
+                  value={selectedTopic}
+                  selectItems={topics}
+                  onChange={handleTopicChange} placeholder={"Select topic"} />
+              )}
+              <FormGroup label={t("partitions")} isInline>
+                <Radio name={"partition-select"} id={"all-partitions"} label={t("all_partitions")}
+                  isChecked={selectedPartition === "allPartitions"}
+                  onChange={() => onPartitionSelect("allPartitions")} />
+                <Radio name={"partition-select"} id={"selected_partition"} label={t("selected_partition")}
+                  isChecked={selectedPartition === "selectedPartition"}
+                  onChange={() => onPartitionSelect("selectedPartition")} />
+              </FormGroup>
+              {selectedConsumerTopic === "selectedTopic" && selectedPartition === "selectedPartition" && (
+                <TypeaheadSelect
+                  value={selectPartition}
+                  selectItems={partitions}
+                  onChange={handlePartitionChange}
+                  placeholder={"Select partition"}
+                />
+              )}
+            </FormSection>
+            <FormSection title={t("offset_details")}>
+              <FormGroup label={t("new_offset")}>
+                <OffsetSelect
+                  value={selectedOffset}
+                  onChange={setSelectedOffset} />
+              </FormGroup>
+              {selectedOffset === "custom" &&
+                <FormGroup
+                  label={t("custom_offset")}
+                  fieldId="custom-offset-input"
+                >
+                  <TextInput
+                    id="custom-offset-input"
+                    name={t("custom_offset")}
+                    value={customOffsetValue}
+                    onChange={(_event, value) => setcustomOffsetValue(value)}
+                    type="number"
                   />
-                )}
-              </FormSection>
-              <FormSection title={t("offset_details")}>
-                <FormGroup label={t("new_offset")}>
-                  <OffsetSelect
-                    value={selectedOffset}
-                    onChange={setSelectedOffset} />
-                </FormGroup>
-                {selectedOffset === "custom" &&
-                  <FormGroup
-                    label={t("custom_offset")}
-                    fieldId="custom-offset-input"
-                  >
+                </FormGroup>}
+              {selectedOffset === "specificDateTime" &&
+                <>
+                  <FormGroup role="radiogroup" isInline fieldId="select-consumer" hasNoPaddingTop label={t("select_date_time")}>
+                    <Radio name={"select_time"} id={"iso_date_format"} label={t("iso_date_format")}
+                      isChecked={selectDateTimeFormat === "ISO"}
+                      onChange={() => onDateTimeSelect("ISO")} />
+                    <Radio name={"select_time"} id={"unix_date_format"} label={t("unix_date_format")}
+                      isChecked={selectDateTimeFormat === "Epoch"}
+                      onChange={() => onDateTimeSelect("Epoch")} />
+                  </FormGroup>
+                  <FormGroup>
                     <TextInput
-                      id="custom-offset-input"
-                      name={t("custom_offset")}
-                      value={customOffsetValue}
-                      onChange={(_event, value) => setcustomOffsetValue(value)}
-                      type="number"
+                      id="date-input"
+                      name={"date-input"}
+                      type="datetime-local"
                     />
-                  </FormGroup>}
-                {selectedOffset === "specificDateTime" &&
-                  <>
-                    <FormGroup role="radiogroup" isInline fieldId="select-consumer" hasNoPaddingTop label={t("select_date_time")}>
-                      <Radio name={"select_time"} id={"iso_date_format"} label={t("iso_date_format")}
-                        isChecked={selectDateTimeFormat === "ISO"}
-                        onChange={() => onDateTimeSelect("ISO")} />
-                      <Radio name={"select_time"} id={"unix_date_format"} label={t("unix_date_format")}
-                        isChecked={selectDateTimeFormat === "Epoch"}
-                        onChange={() => onDateTimeSelect("Epoch")} />
-                    </FormGroup>
-                    <FormGroup>
-                      <TextInput
-                        id="date-input"
-                        name={"date-input"}
-                        type="datetime-local"
-                      />
-                    </FormGroup>
-                  </>}
-              </FormSection>
-              <ActionGroup>
-                <Button variant="primary">{t("save")}</Button>
-                <Button variant="secondary">{t("dry_run")}</Button>
-                <Button variant="link">{t("cancel")}</Button>
-              </ActionGroup>
-            </Form>
-          </PanelMainBody>
-        </PanelMain>
-      </Panel >
-    </PageSection>
+                  </FormGroup>
+                </>}
+            </FormSection>
+            <ActionGroup>
+              <Button variant="primary">{t("save")}</Button>
+              <Button variant="secondary">{t("dry_run")}</Button>
+              <Button variant="link">{t("cancel")}</Button>
+            </ActionGroup>
+          </Form>
+        </PanelMainBody>
+      </PanelMain>
+    </Panel >
   )
 }

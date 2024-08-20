@@ -144,10 +144,10 @@ export function ConnectedConsumerGroupsTable({
         onResetOffset={(row) => {
           startTransition(() => {
             if (row.attributes.state === "STABLE") {
-              router.push(`${baseurl}/${row.id}/reset-offset`);
-            } else if (row.attributes.state === "EMPTY") {
               setResetOffsetModalOpen(true)
               setConsumerGroupMembers(row.attributes.members?.map((member) => member.memberId) || []);
+              router.push(`${baseurl}/${row.id}/reset-offset`);
+            } else if (row.attributes.state === "EMPTY") {
               router.push(`${baseurl}/${row.id}/reset-offset`);
             }
           });

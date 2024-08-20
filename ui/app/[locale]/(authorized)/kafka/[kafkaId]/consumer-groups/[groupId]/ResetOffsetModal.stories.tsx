@@ -9,6 +9,7 @@ type Story = StoryObj<typeof ResetOffsetModal>;
 
 export const Default: Story = {
   args: {
+    isResetOffsetModalOpen: true,
     members: ["console-datagen-consumer-0", "console-datagen-consumer-1"]
   },
 };

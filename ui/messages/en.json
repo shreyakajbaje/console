@@ -388,7 +388,8 @@
     "cancel": "Cancel",
     "reset_offset": "Reset consumer offset",
     "reset_offset_description": "Consumer group must be empty to reset offsets.",
-    "member_list_to_shutdown": "Active members of the group that need to shutdown:",
+    "member_shutdown_helper_text": "To reset the consumer group offsets, all the active members must be shut down.",
+    "shutdown_active_members": "Shut down active members before proceeding",
     "learn_to_shutdown_members": "Learn how to shut down members",
     "reset_consumer_offset": "Reset consumer offset",
     "consumer_name": "Consumer group: <b>{consumerGroupName}</b>",
@@ -412,7 +413,11 @@
     "selected_partition": "A selected partition",
     "select_date_time": "Select Date time",
     "iso_date_format": "ISO 8601 Date-Time Format",
-    "unix_date_format": "Unix Epoch Milliseconds"
+    "unix_date_format": "Unix Epoch Milliseconds",
+    "dry_run_result": "<b>Dry Run results</b>",
+    "download_dryrun_result": "Download Dry Run results",
+    "jump_to_topic": "Jump to topic"
+
   },
   "CreateTopic": {
     "title": "Topic creation wizard",
