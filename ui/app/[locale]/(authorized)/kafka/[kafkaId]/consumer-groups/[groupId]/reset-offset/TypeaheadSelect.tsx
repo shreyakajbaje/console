@@ -13,7 +13,12 @@ import {
 } from '@patternfly/react-core';
 import { TimesIcon } from '@patternfly/react-icons';
 
-export function TypeaheadSelect({ value, selectItems, onChange, placeholder }: {
+export function TypeaheadSelect({
+  value,
+  selectItems,
+  onChange,
+  placeholder,
+}: {
   value: string | number;
   selectItems: (string | number)[];
   onChange: (item: string | number) => void;
@@ -34,30 +39,38 @@ export function TypeaheadSelect({ value, selectItems, onChange, placeholder }: {
     }
   };
 
-  const onSelect: SelectProps["onSelect"] = (_event, selection) => {
-    onChange(selection as string | number);
+  const onSelect: SelectProps['onSelect'] = (_event, selection) => {
+    if (selection !== NO_RESULTS) {
+      onChange(selection as string | number);
+      setFilterValue('');
+    }
     setIsOpen(false);
   };
 
   const filteredItems = filterValue
-    ? selectItems.filter(item => item.toString().toLowerCase().includes(filterValue.toLowerCase()))
+    ? selectItems.filter((item) =>
+      item.toString().toLowerCase().includes(filterValue.toLowerCase())
+    )
     : selectItems;
 
   const options = filteredItems.length
-    ? filteredItems.map(item => (
+    ? filteredItems.map((item) => (
       <SelectOption key={item} value={item}>
         {item}
       </SelectOption>
     ))
     : [
       <SelectOption key={NO_RESULTS} value={NO_RESULTS} isAriaDisabled>
-        {"No results found for" + filterValue}
-      </SelectOption>
+        {`No results found for "${filterValue}"`}
+      </SelectOption>,
     ];
 
   const onInputChange = (_event: React.FormEvent<HTMLInputElement>, value: string) => {
     setFilterValue(value);
     setFocusedItemIndex(null);
+    if (value === '') {
+      onChange('');
+    }
   };
 
   const onInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -72,6 +85,7 @@ export function TypeaheadSelect({ value, selectItems, onChange, placeholder }: {
     setFilterValue('');
     setFocusedItemIndex(null);
     setActiveItemId(null);
+    onChange('');
     textInputRef.current?.focus();
   };
 
@@ -100,7 +114,7 @@ export function TypeaheadSelect({ value, selectItems, onChange, placeholder }: {
           aria-controls="typeahead-select-listbox"
         />
         <TextInputGroupUtilities>
-          {filterValue && (
+          {(filterValue || value) && (
             <Button variant="plain" onClick={onClearButtonClick} aria-label="Clear input value">
               <TimesIcon aria-hidden />
             </Button>
@@ -116,13 +130,11 @@ export function TypeaheadSelect({ value, selectItems, onChange, placeholder }: {
       isOpen={isOpen}
       selected={value ? [value] : []}
       onSelect={onSelect}
-      onOpenChange={(isOpen) => !isOpen && setIsOpen(false)}
+      onOpenChange={(isOpen) => setIsOpen(!isOpen)}
       toggle={toggle}
       shouldFocusFirstItemOnOpen={false}
     >
-      <SelectList id="typeahead-select-listbox">
-        {options}
-      </SelectList>
+      <SelectList id="typeahead-select-listbox">{options}</SelectList>
     </Select>
   );
 }

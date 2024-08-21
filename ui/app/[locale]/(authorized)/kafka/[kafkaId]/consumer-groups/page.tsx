@@ -106,7 +106,6 @@ async function AsyncConnectedConsumerGroupsTable({
     pageSize,
     pageCursor,
   });
-  console.log(consumerGroups)
   if (!consumerGroups) {
     notFound();
   }

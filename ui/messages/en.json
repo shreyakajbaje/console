@@ -416,8 +416,11 @@
     "unix_date_format": "Unix Epoch Milliseconds",
     "dry_run_result": "<b>Dry Run results</b>",
     "download_dryrun_result": "Download Dry Run results",
-    "jump_to_topic": "Jump to topic"
-
+    "jump_to_topic": "<b>Jump to topic</b>",
+    "dry_run_execution_alert": "Dry Run results are accurate as of the execution time, but they may differ when performing the live reset of offset changes",
+    "back_to_edit_offset": "Back to edit offset",
+    "topic": "Topic",
+    "partition": "Partition"
   },
   "CreateTopic": {
     "title": "Topic creation wizard",

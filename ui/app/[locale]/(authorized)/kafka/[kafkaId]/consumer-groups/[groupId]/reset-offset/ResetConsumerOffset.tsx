@@ -6,17 +6,23 @@ import { useState } from "react";
 import { DateTimeFormatSelection, OffsetValue, TopicSelection, partitionSelection } from "../types";
 import { TypeaheadSelect } from "./TypeaheadSelect";
 import { OffsetSelect } from "./OffsetSelect";
+import { useRouter } from "@/navigation";
 
 export function ResetConsumerOffset({
   consumerGroupName,
   topics,
-  partitions
+  partitions,
+  baseurl
+
 }: {
   consumerGroupName: string;
   topics: string[];
   partitions: number[];
+  baseurl: string;
 }) {
   const t = useTranslations("ConsumerGroupsTable");
+
+  const router = useRouter();
 
   const [selectedConsumerTopic, setSelectedConsumerTopic] = useState<TopicSelection>();
 
@@ -60,6 +66,10 @@ export function ResetConsumerOffset({
       console.warn('Expected a number, but got a string:', item);
     }
   };
+
+  const openDryrun = () => {
+    router.push(`${baseurl}/dry-run`)
+  }
 
   return (
     <Panel>
@@ -146,7 +156,7 @@ export function ResetConsumerOffset({
             </FormSection>
             <ActionGroup>
               <Button variant="primary">{t("save")}</Button>
-              <Button variant="secondary">{t("dry_run")}</Button>
+              <Button variant="secondary" onClick={openDryrun}>{t("dry_run")}</Button>
               <Button variant="link">{t("cancel")}</Button>
             </ActionGroup>
           </Form>

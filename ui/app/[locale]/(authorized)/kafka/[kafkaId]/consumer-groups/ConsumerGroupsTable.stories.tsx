@@ -76,7 +76,7 @@ export const ConsumerGroups: Story = {
       {
         id: "console-datagen-group-2",
         attributes: {
-          state: "STABLE",
+          state: "EMPTY",
           offsets: [{
             lag: 200
           }, {

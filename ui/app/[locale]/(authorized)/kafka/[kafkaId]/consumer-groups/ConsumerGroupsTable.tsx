@@ -220,6 +220,7 @@ export function ConsumerGroupsTable({
       renderActions={({ row, ActionsColumn }) => (
         <ActionsColumn items={[{
           title: t('ConsumerGroupsTable.reset_offset'),
+          description: t("ConsumerGroupsTable.reset_offset_description"),
           onClick: () => onResetOffset(row),
         }]} />
       )}

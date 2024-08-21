@@ -5,9 +5,9 @@ import { KafkaParams } from "@/app/[locale]/(authorized)/kafka/[kafkaId]/kafka.p
 import { PageSection } from "@/libs/patternfly/react-core";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ResetConsumerOffset } from "./ResetConsumerOffset";
+import { Dryrun } from "./Dryrun";
 
-export default function ResetOffsetPage({
+export default function DryRunPage({
   params: { kafkaId, groupId },
 }: {
   params: KafkaConsumerGroupMembersParams;
@@ -17,13 +17,13 @@ export default function ResetOffsetPage({
       <Suspense
         fallback={<MembersTable kafkaId={kafkaId} consumerGroup={undefined} />}
       >
-        <ConnectedResetOffset params={{ kafkaId, groupId }} />
+        <ConnectedDryrun params={{ kafkaId, groupId }} />
       </Suspense>
     </PageSection>
   );
 }
 
-async function ConnectedResetOffset({
+async function ConnectedDryrun({
   params: { kafkaId, groupId },
 }: {
   params: KafkaParams & { groupId: string };
@@ -53,8 +53,6 @@ async function ConnectedResetOffset({
     ).filter(
       (partition): partition is number => partition !== undefined
     ) || []
-  return <ResetConsumerOffset
-    consumerGroupName={consumerGroup.id}
-    topics={topics}
-    partitions={partitions} baseurl={`/kafka/${kafkaId}/consumer-groups/${consumerGroup.id}/reset-offset`} />;
+  return <Dryrun
+    consumerGroupName={consumerGroup.id} topics={[]} />;
 }
