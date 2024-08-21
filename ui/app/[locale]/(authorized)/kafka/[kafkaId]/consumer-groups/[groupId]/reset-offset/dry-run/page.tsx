@@ -28,12 +28,6 @@ async function ConnectedDryrun({
 }: {
   params: KafkaParams & { groupId: string };
 }) {
-  async function refresh() {
-    "use server";
-    const res = await getConsumerGroup(kafkaId, groupId);
-    return res;
-  }
-
   const consumerGroup = await getConsumerGroup(kafkaId, groupId);
   if (!consumerGroup) {
     notFound();
@@ -54,5 +48,5 @@ async function ConnectedDryrun({
       (partition): partition is number => partition !== undefined
     ) || []
   return <Dryrun
-    consumerGroupName={consumerGroup.id} topics={[]} />;
+    consumerGroupName={consumerGroup.id} topics={[]} baseurl={`/kafka/${kafkaId}/consumer-groups/${consumerGroup.id}/reset-offset`} />;
 }

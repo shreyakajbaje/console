@@ -420,7 +420,8 @@
     "dry_run_execution_alert": "Dry Run results are accurate as of the execution time, but they may differ when performing the live reset of offset changes",
     "back_to_edit_offset": "Back to edit offset",
     "topic": "Topic",
-    "partition": "Partition"
+    "partition": "Partition",
+    "cli_command": "$kafka-consumer-groups --bootstrap-server localhost:9092 --group my-consumer-group --reset-offsets --topic mytopic --to-earliest --dry-run"
   },
   "CreateTopic": {
     "title": "Topic creation wizard",

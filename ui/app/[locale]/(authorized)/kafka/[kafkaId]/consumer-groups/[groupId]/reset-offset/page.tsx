@@ -56,5 +56,5 @@ async function ConnectedResetOffset({
   return <ResetConsumerOffset
     consumerGroupName={consumerGroup.id}
     topics={topics}
-    partitions={partitions} baseurl={`/kafka/${kafkaId}/consumer-groups/${consumerGroup.id}/reset-offset`} />;
+    partitions={partitions} baseurl={`/kafka/${kafkaId}/consumer-groups/${consumerGroup.id}`} />;
 }

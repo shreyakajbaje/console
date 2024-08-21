@@ -91,9 +91,6 @@ export function ConnectedConsumerGroupsTable({
   const [isResetOffsetModalOpen, setResetOffsetModalOpen] = useState(false);
   const [ConsumerGroupMembers, setConsumerGroupMembers] = useState<string[]>([]);
 
-  const [consumerGroupName, setConsumerGroupName] = useState<string>();
-  const [topics, setTopics] = useState<string[]>([]);
-
   function closeResetOffsetModal() {
     setResetOffsetModalOpen(false);
     setConsumerGroupMembers([]);
@@ -146,7 +143,6 @@ export function ConnectedConsumerGroupsTable({
             if (row.attributes.state === "STABLE") {
               setResetOffsetModalOpen(true)
               setConsumerGroupMembers(row.attributes.members?.map((member) => member.memberId) || []);
-              router.push(`${baseurl}/${row.id}/reset-offset`);
             } else if (row.attributes.state === "EMPTY") {
               router.push(`${baseurl}/${row.id}/reset-offset`);
             }

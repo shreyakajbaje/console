@@ -68,7 +68,11 @@ export function ResetConsumerOffset({
   };
 
   const openDryrun = () => {
-    router.push(`${baseurl}/dry-run`)
+    router.push(`${baseurl}/reset-offset/dry-run`)
+  }
+
+  const closeResetOffset = () => {
+    router.push(`${baseurl}`)
   }
 
   return (
@@ -157,7 +161,7 @@ export function ResetConsumerOffset({
             <ActionGroup>
               <Button variant="primary">{t("save")}</Button>
               <Button variant="secondary" onClick={openDryrun}>{t("dry_run")}</Button>
-              <Button variant="link">{t("cancel")}</Button>
+              <Button variant="link" onClick={closeResetOffset}>{t("cancel")}</Button>
             </ActionGroup>
           </Form>
         </PanelMainBody>
