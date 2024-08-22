@@ -1,0 +1,20 @@
+---
+apiVersion: console.streamshub.github.com/v1alpha1
+kind: Console
+metadata:
+  name: example
+spec:
+  hostname: example-console.apps-crc.testing
+  kafkaClusters:
+    - name: console-kafka             # Name of the `Kafka` CR representing the cluster
+      namespace: kafka                # Namespace of the `Kafka` CR representing the cluster
+      listener: secure                # Listener on the `Kafka` CR to connect from the console
+      properties:
+        values: []                    # Array of name/value for properties to be used for connections
+                                      # made to this cluster
+        valuesFrom: []                # Array of references to ConfigMaps or Secrets with properties
+                                      # to be used for connections made to this cluster
+      credentials:
+        kafkaUser:
+          name: console-kafka-user1   # Name of the `KafkaUser` resource used to connect to Kafka
+                                      # This is optional if properties are used to configure the user
