@@ -1,27 +1,74 @@
-# Console for Apache Kafka<sup>®</sup> on Kubernetes
-
+# StreamsHub Console for Apache Kafka<sup>®</sup>
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=streamshub_console&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=streamshub_console) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=streamshub_console&metric=coverage)](https://sonarcloud.io/summary/new_code?id=streamshub_console)
-
-This project is a web console designed to facilitate interactions with Apache Kafka<sup>®</sup> instances on Kubernetes, leveraging the [Strimzi](https://strimzi.io) Cluster Operator.
+StreamsHub Console is a web application designed to facilitate interactions with Apache Kafka<sup>®</sup> instances, optionally leveraging the [Strimzi](https://strimzi.io) Cluster Operator for Kafka<sup>®</sup> instances running on Kubernetes.
 It is composed of three main parts:
-
 - a [REST API](./api) backend developed with Java and [Quarkus](https://quarkus.io/)
 - a [user interface (UI)](./ui) built with [Next.js](https://nextjs.org/) and [PatternFly](https://patternfly.org)
 - a Kubernetes [operator](./operator) developed with Java and [Quarkus](https://quarkus.io/)
 
-#### Roadmap / Goals
+## Roadmap / Goals
 
 The future goals of this project are to provide a user interface to interact with and manage additional data streaming components such as:
-
 - [Apicurio Registry](https://www.apicur.io/registry/) for message serialization and de-serialization + validation
 - [Kroxylicious](https://kroxylicious.io/)
 - [Apache Flink](https://flink.apache.org/)
 
 Contributions and discussions around use cases for these (and other relevant) components are both welcome and encouraged.
 
-## Running the Application
+## Deployment
+There are several ways to deploy the console - via the operator using the Operator Lifecycle Manager (OLM), via the operator using plain Kubernetes resources, or directly with Kubernetes resources (without the operator).
 
-The console application may either be run in a Kubernetes cluster or locally to try it out.
+### Prerequisites
+#### Kafka
+The instructions below assume an existing Apache Kafka<sup>®</sup> cluster is available to use from the console. We recommend using [Strimzi](https://strimzi.io) to create and manage your Apache Kafka<sup>®</sup> clusters - plus the console provides additional features and insights for Strimzi Apache Kafka<sup>®</sup> clusters.
+
+If you already have Strimzi installed but would like to create an Apache Kafka<sup>®</sup> cluster for use with the console, example resources are available to get started.  This example will create an Apache Kafka<sup>®</sup> cluster in KRaft mode with SCRAM-SHA-512 authentication, a Strimzi `KafkaNodePool` resource to manage the cluster nodes, and a Strimzi `KafkaUser` resource that may be used to connect to the cluster.
+
+Modify the `CLUSTER_DOMAIN` to match the base domain of your Kubernetes cluster (used for ingress configuration), use either `route` (OpenShift) or `ingress` (vanilla Kubernetes) for `LISTENER_TYPE`, and set `NAMESPACE` to be the namespace where the Apache Kafka<sup>®</sup> cluster will be created.
+```shell
+export CLUSTER_DOMAIN=apps-crc.testing
+export NAMESPACE=kafka
+export LISTENER_TYPE=route
+cat examples/kafka/*.yaml | envsubst | kubectl apply -n ${NAMESPACE} -f -
+```
+
+#### Prometheus
+Prometheus is an optional dependency of the console if cluster metrics are to be displayed. The operator currently installs a private Prometheus instance for each `Console` instance. However, when installing a single console deployment, Prometheus must be either installed separately or provided via a URL reference. This will be addressed below in the section dealing with creating a console via a `Deployment`.
+
+### Deploy the operator with OLM
+The preferred way to deploy the console is using the Operator Lifecycle Manager, or OLM. The sample install files in `install/operator-olm` will install the operator with cluster-wide scope. This means that `Console` instances may be created in any namespace. If you wish to limit the scope of the operator, the `OperatorGroup` resource may be modified to specify only the namespace that should be watched by the operator.
+
+This example will create the operator's OLM resources in the `default` namespace. Modify the `NAMESPACE` variable according to your needs.
+```shell
+export NAMESPACE=default
+cat install/operator-olm/*.yaml | envsubst | kubectl apply -n ${NAMESPACE} -f -
+```
+Once the operator is ready, you may then create a `Console` resource in the namespace where the console should be deployed. This example `Console` is based on the example Apache Kafka<sup>®</sup> cluster deployed above in the [prerequisites section](#prerequisites)
+```yaml
+apiVersion: console.streamshub.github.com/v1alpha1
+kind: Console
+metadata:
+  name: example
+spec:
+  hostname: example-console.apps-crc.testing # Hostname where the console will be accessed via HTTPS
+  kafkaClusters:
+    - name: console-kafka             # Name of the `Kafka` CR representing the cluster
+      namespace: kafka                # Namespace of the `Kafka` CR representing the cluster
+      listener: secure                # Listener on the `Kafka` CR to connect from the console
+      properties:
+        values: []                    # Array of name/value for properties to be used for connections
+                                      # made to this cluster
+        valuesFrom: []                # Array of references to ConfigMaps or Secrets with properties
+                                      # to be used for connections made to this cluster
+      credentials:
+        kafkaUser:
+          name: console-kafka-user1   # Name of the `KafkaUser` resource used to connect to Kafka
+                                      # This is optional if properties are used to configure the user
+```
+
+### Deploy the operator directly
+
+### Installing
 
 ### Install to Kubernetes
 
