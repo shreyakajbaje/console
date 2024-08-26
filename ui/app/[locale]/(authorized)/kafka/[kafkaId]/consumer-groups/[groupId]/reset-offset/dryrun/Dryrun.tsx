@@ -1,22 +1,40 @@
 "use client";
 
-import { Alert, Button, Card, DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm, Divider, Flex, FlexItem, JumpLinks, JumpLinksItem, List, ListItem, Panel, PanelHeader, PanelMain, PanelMainBody, Sidebar, SidebarContent, SidebarPanel, Stack, StackItem } from "@/libs/patternfly/react-core";
+import {
+  Alert,
+  Button,
+  Card,
+  DescriptionList,
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
+  Divider,
+  Flex,
+  FlexItem,
+  JumpLinks,
+  JumpLinksItem,
+  List,
+  ListItem,
+  Panel,
+  PanelHeader,
+  PanelMain,
+  PanelMainBody,
+  Sidebar,
+  SidebarContent,
+  SidebarPanel,
+  Stack,
+  StackItem
+} from "@/libs/patternfly/react-core";
 import { TextContent, Text } from "@/libs/patternfly/react-core";
 import { useTranslations } from "next-intl";
 import { DownloadIcon } from "@/libs/patternfly/react-icons";
 import { useRouter } from "@/navigation";
 
-type PartitionOffset = {
-  partition: string;
+export type Offset = {
+  topicName: string;
+  partition: number;
   offset: number;
 };
-
-type TopicDetails = {
-  topicName: string;
-  topicId: string;
-  partitions: PartitionOffset[];
-};
-
 
 export function Dryrun({
   consumerGroupName,
@@ -24,16 +42,15 @@ export function Dryrun({
   baseurl
 }: {
   consumerGroupName: string;
-  topics: TopicDetails[];
+  topics: Offset[];
   baseurl: string;
 }) {
   const t = useTranslations("ConsumerGroupsTable");
-
   const router = useRouter();
 
   const onClickCloseDryrun = () => {
-    router.push(`${baseurl}`)
-  }
+    router.push(`${baseurl}`);
+  };
 
   const onClickDownload = () => {
     const data = {
@@ -52,6 +69,15 @@ export function Dryrun({
     URL.revokeObjectURL(url);
   };
 
+  // Group offsets by topic
+  const groupedTopics = topics.reduce<Record<string, Offset[]>>((acc, offset) => {
+    if (!acc[offset.topicName]) {
+      acc[offset.topicName] = [];
+    }
+    acc[offset.topicName].push(offset);
+    return acc;
+  }, {});
+
   return (
     <Panel>
       <PanelHeader>
@@ -63,8 +89,7 @@ export function Dryrun({
           </FlexItem>
           <FlexItem>
             <Button variant="link" onClick={onClickDownload}>
-              {<>{t("download_dryrun_result")}{" "}< DownloadIcon />
-              </>}
+              {<>{t("download_dryrun_result")} <DownloadIcon /></>}
             </Button>
           </FlexItem>
         </Flex>
@@ -84,27 +109,23 @@ export function Dryrun({
             <StackItem>
               <Sidebar>
                 <SidebarPanel>
-                  <JumpLinks isVertical
-                    label={t.rich("jump_to_topic")}
-                  >
-                    {topics.map((topic) => (
-                      <JumpLinksItem key={topic.topicId}
-                        href={`#topic-${topic.topicId}`}
-                      >
-                        {topic.topicName}
+                  <JumpLinks isVertical label={t.rich("jump_to_topic")}>
+                    {Object.keys(groupedTopics).map((topicName) => (
+                      <JumpLinksItem key={topicName} href={`#topic-${topicName}`}>
+                        {topicName}
                       </JumpLinksItem>
                     ))}
                   </JumpLinks>
                 </SidebarPanel>
                 <SidebarContent>
                   <Stack hasGutter>
-                    {topics.map((topic) => (
-                      <StackItem key={topic.topicId}>
+                    {Object.entries(groupedTopics).map(([topicName, offsets]) => (
+                      <StackItem key={topicName}>
                         <Card component="div">
-                          <DescriptionList id={`topic-${topic.topicId}`} >
+                          <DescriptionList id={`topic-${topicName}`}>
                             <DescriptionListGroup>
                               <DescriptionListTerm>{t("topic")}</DescriptionListTerm>
-                              <DescriptionListDescription>{topic.topicName}</DescriptionListDescription>
+                              <DescriptionListDescription>{topicName}</DescriptionListDescription>
                             </DescriptionListGroup>
                             <Flex>
                               <FlexItem>
@@ -112,8 +133,8 @@ export function Dryrun({
                                   <DescriptionListTerm>{t("partition")}</DescriptionListTerm>
                                   <DescriptionListDescription>
                                     <List isPlain>
-                                      {topic.partitions.map(partition => (
-                                        <ListItem key={partition.partition}>{partition.partition}</ListItem>
+                                      {offsets.map(({ partition }) => (
+                                        <ListItem key={partition}>{partition}</ListItem>
                                       ))}
                                     </List>
                                   </DescriptionListDescription>
@@ -124,8 +145,8 @@ export function Dryrun({
                                   <DescriptionListTerm>{t("new_offset")}</DescriptionListTerm>
                                   <DescriptionListDescription>
                                     <List isPlain>
-                                      {topic.partitions.map(partition => (
-                                        <ListItem key={partition.partition}>{partition.offset}</ListItem>
+                                      {offsets.map(({ partition, offset }) => (
+                                        <ListItem key={partition}>{offset}</ListItem>
                                       ))}
                                     </List>
                                   </DescriptionListDescription>
@@ -148,7 +169,7 @@ export function Dryrun({
             </StackItem>
           </Stack>
         </PanelMainBody>
-      </PanelMain >
-    </Panel >
-  )
+      </PanelMain>
+    </Panel>
+  );
 }

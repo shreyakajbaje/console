@@ -5,7 +5,7 @@ import { KafkaParams } from "@/app/[locale]/(authorized)/kafka/[kafkaId]/kafka.p
 import { PageSection } from "@/libs/patternfly/react-core";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { Dryrun } from "./Dryrun";
+import { Dryrun, Offset } from "./Dryrun";
 
 export default function DryRunPage({
   params: { kafkaId, groupId },
@@ -33,20 +33,8 @@ async function ConnectedDryrun({
     notFound();
   }
 
-  const topics = consumerGroup.attributes.members
-    ?.flatMap((m) =>
-      m.assignments?.map((topic) => topic.topicName)
-    )
-    .filter(
-      (topicName): topicName is string => topicName !== undefined
-    ) || []
+  const offsets: Offset[] = consumerGroup.attributes.offsets || [];
 
-  const partitions = consumerGroup.attributes.members
-    ?.flatMap((m) =>
-      m.assignments?.map((topic) => topic.partition)
-    ).filter(
-      (partition): partition is number => partition !== undefined
-    ) || []
   return <Dryrun
-    consumerGroupName={consumerGroup.id} topics={[]} baseurl={`/kafka/${kafkaId}/consumer-groups/${consumerGroup.id}/reset-offset`} />;
+    consumerGroupName={consumerGroup.id} topics={offsets} baseurl={`/kafka/${kafkaId}/consumer-groups/${consumerGroup.id}/reset-offset`} />;
 }

@@ -68,7 +68,7 @@ export function ResetConsumerOffset({
   };
 
   const openDryrun = () => {
-    router.push(`${baseurl}/reset-offset/dry-run`)
+    router.push(`${baseurl}/reset-offset/dryrun`)
   }
 
   const closeResetOffset = () => {

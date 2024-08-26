@@ -32,6 +32,8 @@ export function TypeaheadSelect({
 
   const NO_RESULTS = 'no results';
 
+  const uniqueItems = Array.from(new Set(selectItems));
+
   const onToggleClick = () => {
     setIsOpen(!isOpen);
     if (!isOpen) {
@@ -48,10 +50,10 @@ export function TypeaheadSelect({
   };
 
   const filteredItems = filterValue
-    ? selectItems.filter((item) =>
+    ? uniqueItems.filter((item) =>
       item.toString().toLowerCase().includes(filterValue.toLowerCase())
     )
-    : selectItems;
+    : uniqueItems;
 
   const options = filteredItems.length
     ? filteredItems.map((item) => (
