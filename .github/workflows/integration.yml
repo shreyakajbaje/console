@@ -63,7 +63,7 @@ jobs:
           mvn verify -P container-image -B --no-transfer-progress \
             -Dquarkus.kubernetes.namespace='$${NAMESPACE}' \
             -Dquarkus.package.write-transformed-bytecode-to-build-output=true \
-            -Dquarkus.docker.buildx.platform=linux/amd64,linux/arm64
+            -Dquarkus.docker.buildx.platform=linux/amd64,linux/arm64,linux/ppc64le
 
       - name: Modify CSV Annotation
         run: ./operator/bin/modify-bundle-metadata.sh "SKIP_RANGE=>=0.0.1 <${{ env.PROJECT_VERSION }}"
@@ -72,7 +72,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: operator/target/bundle/console-operator/
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64,linux/ppc64le
           provenance: false
           push: false
           file: operator/target/bundle/console-operator/bundle.Dockerfile
@@ -91,7 +91,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: operator/target/
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64,linux/ppc64le
           provenance: false
           push: false
           file: operator/target/catalog.Dockerfile
@@ -163,7 +163,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ui/
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64,linux/ppc64le
           provenance: false
           push: false
           tags: |
