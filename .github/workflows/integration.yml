@@ -1,10 +1,5 @@
 name: Build
-on:
-  push:
-    branches: [ 'main' ]
-  pull_request:
-    branches: [ 'main' ]
-    types: [ opened, reopened, synchronize ]
+on: workflow_dispatch
 
 jobs:
   build-api:
